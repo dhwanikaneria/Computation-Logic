@@ -1,0 +1,166 @@
+%Assignment - 1 (Question 6 to 9)
+%Computatinal Logic
+%Author :- Dhwaniben Kaaneria
+%Net ID :- drk170130
+%List Processing and Efficient Arithmetic 
+
+% Question [1] Exercise 3.2.1 : (i) 
+
+ The program 3.14 tells if elements in Xs are present in Ys in any sequence, while the program here tells if the sequence Xs is a subsequence of Ys.
+ Ex : sublist([5,4,3,2,1],[1,2,3,4,5]).
+	  true
+	  subsequence([5,4,3,2,1],[1,2,3,4,5]).
+	  false.
+ 
+% Exercise 3.2.1 : (ii) : -
+
+/* adjacent(Z,X,Y) is true if the elements X and Y are adjacent in the list Z */
+
+adjacent([H,A|_],H,A).
+adjacent([H|T],A,R):-adjacent(T,A,R).
+
+
+/* last(Xs,X) is true if X is the last element in the list Xs.*/
+
+lastNum([H|T],R):-lastNum(T,R).
+lastNum([X],X).
+
+
+% Exercise 3.2.1 : (iiii) : -
+
+/* double(Xs,Ys) is true if every element in the list Xs appears twice in the list Ys.*/
+
+double([X],[X,X]).
+double([H|T],[H,H|Z]):-double(T,Z).
+
+% Exercise 3.2.1 : (iv) : -
+
+for Program 3.16a: (n+1)*(n+2)/2 = n^2(Quadratic)
+for Program 3.16b: n+2 (linear).
+
+ 
+% Question [2] Exercise 3.3.1 : (i) 
+
+/* substitute(X,Y,Xs,Ys) is true if the list Ys is the result of substituting Y for all occurrences of X in the list Xs. */
+
+substitute(X,Y,[X|T],[Y|Z]):-substitute(X,Y,T,Z).
+substitute(X,Y,[H|T],[H|Z]):-not(X==H),substitute(X,Y,T,Z).
+substitute(X,Y,[R],[R]):-not(X==R).
+substitute(X,Y,[X],[Y]).
+
+% Exercise 3.3.1 : (ii) 
+
+select(X,Xs,Ys) is true if Ys is the result of removing the first       
+occurrence of X from Xs. 
+
+select(X,[X|Xs],Xs).
+select(X,[Y|Ys],[Y|Zs]):-not(X==Y),select(X,Ys,Zs).
+
+% Exercise 3.3.1 : (iii) 
+
+/* no_doubles(Xs, Ys) is true if Ys is the list of the elements appearing in Xs without duplication.  Order is same as Xs in Ys. It remove duplicates and return answer in Ys. */
+
+no_doubles([H|T],[H|Z]):-not(T==Z),no_doubles(T,Z),not(member(H,Z)).
+no_doubles([H|T],Z):-not(T==Z),no_doubles(T,Z),(member(H,Z)).
+no_doubles([],[]).
+
+member(X,[X|Xs]).
+member(X,[Y|Ys]):-member(X,Ys).
+
+% Exercise 3.3.1 : (v)
+
+/*mergesort(Xs, Ys) is true if the list Ys is a sorted permutation of the list Xs. */
+
+mergesort([X],[X]).
+mergesort(List,Z):-List=[_,_|_],part(List,List,L,R),mergesort(L,Ls),mergesort(R,Rs),conquer(Ls,Rs,Z).
+mergesort([],[]).
+
+% Partition in two equal part
+part([_|[_|A]],[H|B],[H|L],R):-part(A,B,L,R).
+part([],R,[],R).
+part([_],[H|T],[H|L],R):-part([],T,L,R).
+
+% Merge two sorted lists
+conquer([X|L],[Y|R],[X|Z]):-X=<Y,conquer(L,[Y|R],Z).
+conquer([X|L],[Y|R],[Y|Z]):-X>Y,conquer([X|L],R,Z).
+conquer([],Y,Y).
+conquer(X,[],X).
+
+
+% Exercise 3.3.1 : (vi)
+
+Refer file "KthLargest.txt" 
+
+% Exercise 3.3.1 : (vii) 
+
+Refer file "Poker.txt" 
+ 
+ 
+% Question [3] : SBT
+
+/* Given the sorted binary tree (SBT) representation discussed in class, define the following functions */
+
+%sumtree(T,N): N is the sum of elements in SBT T. 
+
+sumtree(node(X,Y,Z),S):-sumtree(Y,L),plus(L,X,L1),sumtree(Z,R),plus(L1,R,S).
+sumtree(node(s,nil,nil),s).
+sumtree(nil,0).
+
+plus(0,Y,Y):-nat(Y).
+plus(s(X),Y,s(Z)):-plus(X,Y,Z).
+
+nat(0).
+nat(s(X)):-nat(X). 
+ 
+% deletenode(E,T,Tn): delete the element E from SBT T to obtain SBT Tn.
+
+deletenode(E,node(E,nil,nil),nil).
+deletenode(E,node(E,L,nil),L).
+deletenode(E,node(E,nil,R),R).
+deletenode(E,node(X,L,R),node(X,L,Z)):-E>X,deletenode(E,R,Z).
+deletenode(E,node(X,L,R),node(X,Z,R)):-E<X,deletenode(E,L,Z).
+deletenode(E,node(E,L,R),node(Max,Lnew,R)):-leftmax(L,Max,Lnew).
+
+% maximum element from left branch to replace deleted node
+
+leftmax(node(X,L,nil),X,L).
+leftmax(node(X,L,R),Max,node(X,L,Rnew)):-leftmax(R,Max,Rnew).
+
+
+% Question [4] Exercise 8.3.1 : (i) 
+
+/* triangle(N,T) is true if T is the Nth triangular number.  */
+
+triangle(N,T):-triangle(N,0,T).
+triangle(0,A,A).
+triangle(N,A,Z):-N>0,N1 is N-1,B is N+A,triangle(N1,B,Z).
+
+% Exercise 8.3.1 : (iii)
+
+/* between(I,J,K) is true if K is an integer between I and J inclusive, and also generate successive integer in descending order   */
+
+between(I,J,J):-I=<J.
+between(I,J,K):-I<J,J1 is J-1,between(I,J1,K).
+
+
+% Exercise 8.3.1 : (vi)
+
+/* min_list (Is,M) is true if M is the smallest element in the list Is. */
+
+min_list([H|T],M):-min_list([H|T],H,M).
+min_list([],A,A).
+min_list([H|T],A,M):-H<A,min_list(T,H,M).
+min_list([H|T],A,M):-H>=A,min_list(T,A,M).
+
+% Exercise 8.3.1 : (vii)
+
+/*  lengthI(Xs,L) is true if L is the length of the list Xs. */
+ 
+lengthI([H|T],L):-lengthI([H|T],0,L).
+lengthI([H|T],A,L):-A1 is A+1,lengthI(T,A1,L).
+lengthI([],A,A). 
+
+ 
+ 
+ 
+ 

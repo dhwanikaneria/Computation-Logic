@@ -1,0 +1,59 @@
+%2.------------------3.3.1--------------------
+%(vi)
+
+%kthLargest([4,36,6,2,3,85,5,17,6,3,856,21],4,L).
+
+
+kthLargest([X],1,X):-!.
+kthLargest([X1,X2],1,X2):-X2>X1,!.
+kthLargest([X1,X2],2,X1):-X2>X1,!.
+kthLargest(Xs,K,Kth):-K\=0,length(Xs,Len),K=<Len,final_median(Xs,M),partition(Xs,M,Ss,Bs),length(Bs,Lens),divide(Ss,Bs,M,Lens,K,Kth).
+
+
+
+
+divide(_,_,M,Mpos,K,M):-Mpos+1==K,!.
+divide(_,Bs,_,Mpos,K,Kth):-M1 is Mpos+1,M1>K,!,kthLargest(Bs,K,Kth).
+divide(Ss,_,_,Mpos,K,Kth):-K1 is K-Mpos,kthLargest(Ss,K1,Kth).
+
+
+
+partition([],_,[],[]).
+partition([X|Xs],M,Ss,[X|Bs]):-M<X,!,partition(Xs,M,Ss,Bs).
+partition([X|Xs],M,[X|Ss],Bs):-partition(Xs,M,Ss,Bs).
+
+
+% final_median(N,R):- R is median of medians of N/5 groups.
+
+final_median(N,R):-length(N,Len),Len=<5,medians(N,R).
+final_median(N,R):-five(N,H),final_median(H,R).
+
+% five(N,H) :- H is medians of N/5 groups.
+five(N,H):-five(N,G,H).
+five([],G,G).
+five(N,G,K):-grab(N,Five,M),append1(G,M,Z),suffix(N,Five,L),five(L,Z,K).
+five(N,G,R):-length(N,L),L<5,medians(N,M),append1(G,M,R).
+
+
+% grab(X,Y,Z):- Z is median of group Y, which is first five elements of X.
+
+grab([A,B,C,D,E|H],[A,B,C,D,E],M):-medians([A,B,C,D,E],M).
+grab(N,N,M):-length(N,L),L<5,medians(N,M).
+
+% suffix(L,M,N):- N is suffix of L.
+
+suffix(L,[],L).
+suffix([H|T],[H|R],Z):-suffix(T,R,Z).
+
+
+append1([],Y,[Y]).
+append1([H|T],Y,[H|Z]):-append1(T,Y,Z).
+
+
+% medians(L,M):- M is median of L list. 
+medians(L,M):-msort(L,Z),median(Z,M).
+
+median(X,M):-median(X,X,M).
+median([_,_],[H|_],H).
+median([_],[H|_],H).
+median([_,_,X|T],[_|H],M):-median([X|T],H,M).
