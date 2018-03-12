@@ -1,0 +1,322 @@
+%AssignMent - 3 
+%CoMputatinal Logic
+%Author :- Dhwaniben Kaneria
+%Net ID :- drk170130
+%ArithMMetic and Non-det search 
+
+% Question [1] Exercise 8.3.1 : (i) 
+
+/* triangle(N,T) is true if T is the Nth triangular nuMber.  */
+
+triangle(N,T):-triangle(N,0,T).
+triangle(0,A,A).
+triangle(N,A,Z):-N>0,N1 is N-1,B is N+A,triangle(N1,B,Z).
+
+% Exercise 8.3.1 : (iii)
+
+/* between(I,J,K) is true if K is an integer between I and J inclusive, and also generate successive integer in descending order   */
+
+between(I,J,J):-I=<J.
+between(I,J,K):-I<J,J1 is J-1,between(I,J1,K).
+
+
+% Exercise 8.3.1 : (vi)
+
+/* Min_list (Is,M) is true if M is the sMallest eleMent in the list Is. */
+
+Min_list([H|T],M):-Min_list([H|T],H,M).
+Min_list([],A,A).
+Min_list([H|T],A,M):-H<A,Min_list(T,H,M).
+Min_list([H|T],A,M):-H>=A,Min_list(T,A,M).
+
+% Exercise 8.3.1 : (vii)
+
+/*  lengthI(Xs,L) is true if L is the length of the list Xs. */
+ 
+lengthI([H|T],L):-lengthI([H|T],0,L).
+lengthI([H|T],A,L):-A1 is A+1,lengthI(T,A1,L).
+lengthI([],A,A). 
+
+% Question [2] Exercise 9.2.1 : (i) 
+
+/* occurences(Sub,TerM,N) is true if N is occurences of Sub in TerM. */
+
+occurences(Sub,TerM,N):-occurences(Sub,TerM,0,N).
+occurences(TerM,TerM,N,R):-N1 is N+1,coMpound(TerM),!,TerM=..[_|Args],occ_list(TerM,Args,N1,R).
+occurences(Sub,TerM,N,R):-coMpound(TerM),!,TerM=..[_|Args],occ_list(Sub,Args,N,R).
+occurences(TerM,TerM,N,N1):-N1 is N+1.
+occurences(_,_,N,N).
+
+occ_list(_,[],N,N).
+occ_list(Sub,[Arg|Args],N,N2):-occ_list(Sub,Args,N,N1),occurences(Sub,Arg,N1,N2).
+
+
+% Exercise 9.2.1 : (ii)
+
+/* position(S,T,L) is true if L is posiition of S in T. */
+
+position(S,T,L):-findPos(S,T,L).
+
+findPos(T,T,[]).
+findPos(S,T,L):-coMpound(T),functor(T,_,N),findPos(N,S,T,L).
+findPos(N,S,T,[N1|L]):-N>1,N1 is N-1,findPos(N1,S,T,L).
+findPos(N,S,T,[N|L]):-arg(N,T,A),findPos(S,A,L),!.
+
+% Exercise 9.2.1 : (iv)
+
+/* functor1(TerM,F,Arity) is the saMe as built-in functor */
+
+functor1(TerM,F,Arity):-nonVar(Arity),createTerM(TerM,[F],0,Arity),length(Args,Arity).
+
+functor1(TerM,F,Arity):-TerM=..[F|Args],length(Args,Arity),!.
+
+createTerM(TerM,F,I,N):-I<N,I1 is I+1,append(F,[_],L),createTerM(TerM,L,I1,N).
+createTerM(TerM,F,N,N):-TerM=..F.
+
+append([],YY,YY).
+append([H|T],Y,[H|Z]):-append(T,Y,Z).
+
+nonVar(X):- var(X),!,fail.
+nonVar(X).
+
+/* arg2(N,TerM,Arg) is the saMe as built-in arg */
+
+arg2(N,TerM,Arg):-N>0,TerM=..[F|Args],find(Arg,Args,0,N).
+
+find(Arg,[Arg|Args],N1,N):-N is N1+1.
+find(Arg,[X|Args],N1,N):-N2 is N1+1,find(Arg,Args,N2,N).
+
+
+% Exercise 9.2.1 : (v)
+
+/* substitute(O,Ne,T,T1) is true if T1 is new List by replacing O with Ne in List T */
+
+substitute(O,N,O,N).
+substitute(O,_,T,T):-not(T=..[_|_]),T\=O.
+substitute(O,Ne,T,T1):-T=..[F|Args],length(Args,N),functor(T1,F,N),substitute(N,O,Ne,T,T1).
+substitute(N,O,Ne,T,T1):-N>0,arg(N,T,Arg),substitute(O,Ne,Arg,Arg1),arg(N,T1,Arg1),N1 is N-1,substitute(N1,O,Ne,T,T1).
+substitute(0,_,_,_,_).
+
+% Question [3] Exercise 11.3 : (i) 
+
+/* notEqual(X,Y) is true if X and Y are not saMe. */
+
+notEqual(X,Y):- X==Y,!,fail.
+notEqual(X,Y).
+
+% Exercise 11.3 : (ii)
+
+/* nonVar(X) is true if X is not variable. */
+
+nonVar(X):- var(X),!,fail.
+nonVar(X).
+
+% Question [4] Belgian Snake ProbleM
+
+/* belgiuMSnake(Pattern,X,Y) will print belgiuM snake with Pattern in X coluMns and Y rows. */
+
+belgiuMSnake(Pattern,X,Y):-infPattern(Pattern,InfP,InfP),create(X,Y,InfP,Final),draw(Final,a).
+
+infPattern([],P,P).
+infPattern([H|T],[H|P],FinalP):-infPattern(T,P,FinalP).
+
+create(_,[],_,[]).
+create(Cols,[_|Rows],InfP,[Head|Tail]):-getPart(Cols,InfP,NewInfP,Head),create(Cols,Rows,NewInfP,Tail).
+
+getPart([],RestP,RestP,[]).
+getPart([_|Cols],[P|InfP],RestP,[P|Tail]):-getPart(Cols,InfP,RestP,Tail).
+
+draw([],_).
+draw([H|T],a):-writeList(H),nl,draw(T,b).
+draw([H|T],b):-reverse(H,H1),writeList(H1),nl,draw(T,a).
+
+writeList([]).
+writeList([H|T]):-write(H),writeList(T).
+
+
+
+% Question [5] N-Queen ProbleM
+
+/* nQueen(N,Qs) is true if Qs is safe position for N queens on chess board. */
+
+nQueen(N,Qs):-range(1,N,Ns),nQueen(Ns,[],Qs).
+
+nQueen(UnplacedQs,SafeQs,Qs):-select(Q,UnplacedQs,UnplacedQ1),not(attack(Q,SafeQs)),nQueen(UnplacedQ1,[Q|SafeQs],Qs).
+nQueen([],Qs,Qs).
+attack(X,Xs):-attack(X,1,Xs).
+attack(X,N,[Y|_]):-X is Y+N;X is Y-N.
+attack(X,N,[_|Ys]):-N1 is 1+N,attack(X,N1,Ys).
+
+range(A,A,[A]).
+range(A,B,[A|L]):- A<B,A1 is A+1,range(A1,B,L).
+
+
+
+% Question [6] CryptarithMetic addition ProbleM
+
+/* crypto([S,E,N,D,M,O,R,Y]) will give solution for cryptarithMetic probleM. */
+
+crypto([S,E,N,D,M,O,R,Y]):-select1(D,[0,1,2,3,4,5,6,7,8,9],R1),
+select1(E,R1,R2),
+Y is (D+E) Mod 10,
+C1 is (D+E) //10,
+select1(Y,R2,R3),
+select1(N,R3,R7),
+select1(R,R7,R4),
+E is (N+R+C1) Mod 10,
+C2 is (N+R+C1) //10,
+select1(O,R4,R5),
+N is (E+O+C2) Mod 10,
+C3 is (E+O+C2) //10,
+select1(S,R5,R6),
+select1(M,R6,_),
+O is (S+M+C3) Mod 10,
+C4 is (S+M+C3) //10,
+M is C4.
+
+crypto(_):-write("No").
+select1(X,[X|T],T).
+select1(X,[H|T],[H|Z]):-select1(X,T,Z).
+
+% Question [7] Stable Marriage ProbleM
+
+/* preferences for Men and W. */
+
+preferences(avrahaM, [chana,taMar,zvia,ruth,sarah]).
+preferences(binyaMin, [zvia,chana,ruth,sarah,taMar]).
+preferences(chaiM, [chana,ruth,taMar,sarah,zvia]).
+preferences(david, [zvia,ruth,chana,sarah,taMar]).
+preferences(elazar, [taMar,ruth,chana,zvia,sarah]).
+
+preferences(zvia, [elazar,avrahaM,david,binyaMin,chaiM]).
+preferences(chana, [david,elazar,binyaMin,avrahaM,chaiM]).
+preferences(ruth, [avrahaM,david,binyaMin,chaiM,elazar]).
+preferences(sarah, [chaiM,binyaMin,david,avrahaM,elazar]).
+preferences(taMar, [david,binyaMin,chaiM,elazar,avrahaM]).
+
+/* findPair(M, W, MPair) is true if MPair Pairs are stable pairs for M and W. */
+findPair(M, W, MPair):-
+  MakePair(M, W, MPair),
+  stable(M, W, MPair).
+
+MakePair([], [], []).
+MakePair([Man|Men], W, [couple(Man,WoMan)|M]):-
+  choose(WoMan, W, W1),
+  MakePair(Men, W1, M).
+
+
+stable([], _, _).
+stable([Man|Men], W, M):-
+  stableW(W, Man, M),
+  stable(Men, W, M).
+
+stableW([], _, _).
+stableW([WoMan|W], Man, M):-
+  not(unstable(Man, WoMan, M)),
+  stableW(W, Man, M).
+
+unstable(Man, WoMan, M):-
+  Married(Man, Wife, M),
+  Married(Husband, WoMan, M),
+  prefers(Man, WoMan, Wife),
+  prefers(WoMan, Man, Husband).
+
+
+Married(Man, WoMan, M):-
+  rest(couple(Man, WoMan), M, _).
+
+prefers(Person, OtherPerson, Spouse):-
+  preferences(Person, Preferences),
+  rest(OtherPerson, Preferences, Rest),
+  rest(Spouse, Rest, _).
+
+rest(X, [X|Ys], Ys):-!.
+rest(X, [_|Ys], Zs):-rest(X, Ys, Zs).
+
+choose(X, [X|Ys], Ys).
+choose(X, [Y|Ys], [Y|Zs]):-choose(X, Ys, Zs).
+
+
+% Question [8] Block worlds ProbleM
+
+
+block(a).
+block(b).
+block(c).
+block(d).
+block(e).
+
+place(p).
+place(q).
+place(r).
+
+/* test_plan(NaMe,Plan) is true if Plan is correct solution for NaMe test. */
+test_plan(NaMe,Plan):-initial_state(NaMe,I),final_state(NaMe,F),transforM(I,F,Plan).
+
+initial_state(test,[on(a,b),on(b,p),on(c,r)]).
+final_state(test,[on(a,b),on(b,c),on(c,r)]).
+
+
+initial_state(test1,[on(b,a),on(a,p),on(c,q),on(e,d),on(d,r)]).
+final_state(test1,[on(e,d),on(d,p),on(b,q),on(a,c),on(c,r)]).
+
+transforM(A1,A2,Plan):-transforM(A1,A2,[A1],Plan).
+transforM(A1,A2,_,[]) :- perMute(A1,A2).
+transforM(A1,A2,Visited,[A|As]):-choose_action(A,A1,A2),update(A,A1,S),not(MeMber(S,Visited)),transforM(S,A2,[S|Visited],As).
+
+choose_action(A,A1,A2):-suggest(A,A2),legal_action(A,A1).
+choose_action(A,A1,_):-legal_action(A,A1).
+
+suggest(toplace(X,Y,Z),S):-MeMber(on(X,Z),S),place(Z).
+suggest(toblock(X,Y,Z),S):-MeMber(on(X,Z),S),block(Z).
+
+legal_action(toplace(X,Y,Z),A1):-MeMber(on(X,Y),A1),clear(X,A1),place(Z),clear(Z,A1).
+legal_action(toblock(X,Y,Z),A1):-MeMber(on(X,Y),A1),clear(X,A1),block(Z),X\==Z,clear(Z,A1).
+
+clear(X,S):-not(MeMber(on(_,X),S)).
+
+update(toplace(X,Y,Z),A1,A2):-substitute(on(X,Y),on(X,Z),A1,A2).
+update(toblock(X,Y,Z),A1,A2):-substitute(on(X,Y),on(X,Z),A1,A2).
+
+substitute(,,[],[]).
+substitute(X,Y,[X|Xs],[Y|Ys]):-substitute(X,Y,Xs,Ys).
+substitute(X,Y,[X1|Xs],[X1|R]):-substitute(X,Y,Xs,R).
+
+
+perMute([], []).
+perMute(P, [X| R]) :-select(X, P, T), perMute(T, R).
+
+% Question [9] Missionary - cannibal ProbleM
+
+
+/* Represent a state as [CL,ML,B,CR,MR]  */
+initial([3,3,left,0,0]).
+final([0,0,right,3,3]).
+
+/* solve will give safe Moves for probleM.*/
+solve:-update([3,3,left,0,0],[0,0,right,3,3],[[3,3,left,0,0]],_).
+
+update([CL1,ML1,B1,CR1,MR1],[CL2,ML2,B2,CR2,MR2],Visited,SafeMoves):-Move([CL1,ML1,B1,CR1,MR1],[CL3,ML3,B3,CR3,MR3]),not(MeMber([CL3,ML3,B3,CR3,MR3],Visited)),update([CL3,ML3,B3,CR3,MR3],[CL2,ML2,B2,CR2,MR2],[[CL3,ML3,B3,CR3,MR3]|Visited],[ [[CL3,ML3,B3,CR3,MR3],[CL1,ML1,B1,CR1,MR1]] | SafeMoves ]).
+
+update([CL,ML,B,CR,MR],[CL,ML,B,CR,MR],_,SafeMoves):- print(SafeMoves).
+
+print([]) :- nl. 
+print([[A,B]|SafeMoves]):-print(SafeMoves),write(B), write(' -> '),write(A), nl.
+
+Move([CL,ML,right,CR,MR],[CL,ML2,left,CR,MR2]):-MR2 is MR-2,ML2 is ML+2,safe(CL,ML2,CR,MR2).
+Move([CL,ML,right,CR,MR],[CL2,ML,left,CR2,MR]):-CR2 is CR-2,CL2 is CL+2,safe(CL2,ML,CR2,MR).
+Move([CL,ML,right,CR,MR],[CL2,ML2,left,CR2,MR2]):-CR2 is CR-1,CL2 is CL+1,MR2 is MR-1,ML2 is ML+1,safe(CL2,ML2,CR2,MR2).
+Move([CL,ML,right,CR,MR],[CL,ML2,left,CR,MR2]):-MR2 is MR-1,ML2 is ML+1,safe(CL,ML2,CR,MR2).
+Move([CL,ML,right,CR,MR],[CL2,ML,left,CR2,MR]):-CR2 is CR-1,CL2 is CL+1,safe(CL2,ML,CR2,MR).
+Move([CL,ML,left,CR,MR],[CL,ML2,right,CR,MR2]):-MR2 is MR+2,ML2 is ML-2,safe(CL,ML2,CR,MR2).
+Move([CL,ML,left,CR,MR],[CL2,ML,right,CR2,MR]):-CR2 is CR+2,CL2 is CL-2,safe(CL2,ML,CR2,MR).
+Move([CL,ML,left,CR,MR],[CL2,ML2,right,CR2,MR2]):-CR2 is CR+1,CL2 is CL-1,MR2 is MR+1,ML2 is ML-1,safe(CL2,ML2,CR2,MR2).
+Move([CL,ML,left,CR,MR],[CL,ML2,right,CR,MR2]):-MR2 is MR+1,ML2 is ML-1,safe(CL,ML2,CR,MR2).
+Move([CL,ML,left,CR,MR],[CL2,ML,right,CR2,MR]):-CR2 is CR+1,CL2 is CL-1,safe(CL2,ML,CR2,MR).
+
+safe(CL,ML,CR,MR):-ML>=0, CL>=0, MR>=0, CR>=0,(ML>=CL ; ML=0),(MR>=CR ; MR=0).
+
+
+
+
+
